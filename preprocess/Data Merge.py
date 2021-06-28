@@ -76,15 +76,8 @@ def pole_depth_and_position_merge(depth_file, position_file, target_dir, pole_ty
     new[f'{pole_type}电极长度mm(计算)'] = result[f'电极位置{param}'] + result[f'电极入炉深度mm_{param}']
     new[f'{pole_type}电极位置mm'] = result[f'电极位置{param}']
     new.to_excel(os.path.join(target_dir, f'{pole_type}电极工作长度.xlsx'), index=False)
-
-
-def parameter_merge_by_group(input_dir, target_dir, data_summary_type, resample_rule):
-    """
-    data_summary_type：仓料位报警、料位长时间不加料报警、气体报警、原料参数、电气参数、温度参数
-    先按照data_summary_type进行组内合并
-    :return:
-    """
-    file_index_mapping = {
+	
+file_index_mapping = {
         '料仓料位报警': [12, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35],
         '料位长时间不加料报警': [4, 16, 18, 20, 24, 26, 28, 30, 32, 34, 36],
         '气体报警': [87, 97, 98, 102, 105],
@@ -96,6 +89,14 @@ def parameter_merge_by_group(input_dir, target_dir, data_summary_type, resample_
         '温度参数B': [112, 86],
         '温度参数C': [113, 88]
     }
+
+def parameter_merge_by_group(input_dir, target_dir, data_summary_type, resample_rule):
+    """
+    data_summary_type：仓料位报警、料位长时间不加料报警、气体报警、原料参数、电气参数、温度参数
+    先按照data_summary_type进行组内合并
+    :return:
+    """
+
     if data_summary_type is None or data_summary_type not in file_index_mapping.keys():
         return
 
@@ -185,13 +186,14 @@ resample_rule = '1T'  # 采样频率
 """
 pole_mapping = {'A': [54, 57], 'B': [55, 58], 'C': [56, 59]}
 
-for k, v in pole_mapping:
+for k, v in pole_mapping.items():
     pole_depth_and_position_merge(os.path.join(source_dir, f"KD_DS17#18#_tagInfo_{v[0]}.xls"),
                                   os.path.join(source_dir, f"KD_DS17#18#_tagInfo_{v[1]}.xls"), target_dir, k,
                                   resample_rule)
 # 2.0 仓料位报警、料位长时间不加料报警、气体报警、原料参数、电气参数、温度参数A、温度参数B、温度参数C
-data_summary_type = '仓料位报警'
-parameter_merge_by_group(source_dir, target_dir, data_summary_type, resample_rule)
+#data_summary_type = '仓料位报警'
+for k in file_index_mapping.keys():
+	parameter_merge_by_group(source_dir, target_dir, data_summary_type, resample_rule)
 # 3.0 计算每种类型参数的最大采样时间
 get_max_time_for_feature(target_dir)
 
